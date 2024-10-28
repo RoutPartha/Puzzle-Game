@@ -33,49 +33,53 @@ function reloadPuzzle() {
   allDoneElement.classList.toggle('allDone');
 }
 
-// mobile functionality
-var puzzleItemsMobile = document.querySelectorAll('#puzz i');
-puzzleItemsMobile.forEach(function (element) {
-  element.addEventListener('mousedown', function () {
-    totalClicks++;
-    document.querySelector('#clicks').innerHTML = totalClicks;
-  });
-  element.addEventListener('click', function () {
-    if (document.querySelector('.clicked')) {
-      document.querySelector('.clicked').classList.toggle('clicked');
-      element.classList.toggle('clicked');
-    } else {
-      element.classList.toggle('clicked');
-    }
-  });
-});
+// Event handling for puzzle items
+function handlePuzzleItemClick(element) {
+  totalClicks++;
+  document.querySelector('#clicks').innerHTML = totalClicks;
 
-var puzzleItemsDesktop = document.querySelectorAll('#puz i');
-puzzleItemsDesktop.forEach(function (element) {
-  element.addEventListener('click', function () {
-    if (document.querySelector('.clicked')) {
-      var clickedElement = document.querySelector('.clicked');
-      if (clickedElement.classList.contains(element.classList)) {
-        element.classList.add('dropped');
-        clickedElement.classList.add('done');
-        clickedElement.classList.toggle('clicked');
+  if (document.querySelector('.clicked')) {
+    var clickedElement = document.querySelector('.clicked');
+    if (clickedElement.classList.contains(element.classList)) {
+      element.classList.add('dropped');
+      clickedElement.classList.add('done');
+      clickedElement.classList.toggle('clicked');
 
-        if (document.querySelectorAll('.dropped').length == 9) {
-          document.querySelector('#puz').classList.add('allDone');
-          document.querySelector('#puz').style.border = 'none';
-          document.querySelector('#puz').style.animation = 'allDone 1s linear forwards';
+      if (document.querySelectorAll('.dropped').length == 9) {
+        document.querySelector('#puz').classList.add('allDone');
+        document.querySelector('#puz').style.border = 'none';
+        document.querySelector('#puz').style.animation = 'allDone 1s linear forwards';
 
-          setTimeout(function () {
-            reloadPuzzle();
-            randomizeImage();
-          }, 1500);
-        }
+        setTimeout(function () {
+          reloadPuzzle();
+          randomizeImage();
+        }, 1500);
       }
+    } else {
+      clickedElement.classList.toggle('clicked');
+      element.classList.toggle('clicked');
     }
+  } else {
+    element.classList.toggle('clicked');
+  }
+}
+
+// Mobile and desktop functionality
+var puzzleItems = document.querySelectorAll('#puzz i');
+puzzleItems.forEach(function (element) {
+  // For desktop click
+  element.addEventListener('click', function () {
+    handlePuzzleItemClick(element);
+  });
+
+  // For mobile touch
+  element.addEventListener('touchstart', function (event) {
+    event.preventDefault(); // Prevents double triggering
+    handlePuzzleItemClick(element);
   });
 });
 
-// desktop drag and drop
+// Desktop drag and drop functionality
 function allowDrop(ev) {
   ev.preventDefault();
 }
@@ -104,3 +108,15 @@ function drop(ev) {
     }
   }
 }
+
+// Add drag and drop event listeners for desktop
+var draggableItems = document.querySelectorAll('#puz i[draggable="true"]');
+draggableItems.forEach(function (element) {
+  element.addEventListener('dragstart', drag);
+  element.addEventListener('dragover', allowDrop);
+  element.addEventListener('drop', drop);
+});
+
+// Mobile drag and drop (optional)
+// This can be implemented using touch events for a smoother experience.
+// A more sophisticated mobile drag-and-drop solution would require additional logic.
